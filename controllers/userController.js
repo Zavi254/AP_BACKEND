@@ -40,8 +40,7 @@ const registerUser = async (req, res) => {
     const userExists = await User.findOne({ email });
 
     if (userExists) {
-      res.status(400);
-      throw new Error("User Email already exists");
+      return res.status(400).json({ message: "User Email already exists" });
     }
 
     // hash password
@@ -57,25 +56,19 @@ const registerUser = async (req, res) => {
     });
 
     // Create a token
-    const token = jwt.sign(
-      {
-        user_id: user._id,
-        email,
-      },
-      process.env.TOKEN_KEY,
-      { expiresIn: "2h" }
-    );
+    // const token = jwt.sign(
+    //   {
+    //     user_id: user._id,
+    //     email,
+    //   },
+    //   process.env.TOKEN_KEY,
+    //   { expiresIn: "2h" }
+    // );
 
-    user.token = token;
+    // user.token = token;
 
     if (user) {
       sendEmail(email, first_name, last_name);
-      res.status(201).json({
-        _id: user.id,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        email: user.email,
-      });
     } else {
       res.status(400);
       throw new Error("Invalid user data");
