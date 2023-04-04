@@ -2,8 +2,12 @@ const bcrypt = require("bcrypt");
 const User = require("../models/userModel");
 const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
+const fs = require("fs");
 
-function sendEmail(email, firstName, lastName) {
+// Reading contents of the HTML file
+const html = fs.readFileSync("pages/verifyEmail.html", "utf-8");
+
+function sendEmail(email) {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -15,12 +19,8 @@ function sendEmail(email, firstName, lastName) {
   const mail_configs = {
     from: process.env.EMAIL,
     to: email,
-    subject: `Welcome to Africa's Pocket ${firstName} ${lastName}`,
-    html: `
-        <h1>Hi there ${firstName} ${lastName}</h1>
-        <p>Welcome to Africa's Pocket</p>
-        <a href="http:localhost:3000/verify">Click to verify</a>
-      `,
+    subject: `Verify your Email`,
+    html: html,
   };
 
   transporter.sendMail(mail_configs, (error, info) => {
@@ -68,7 +68,7 @@ const registerUser = async (req, res) => {
     // user.token = token;
 
     if (user) {
-      sendEmail(email, first_name, last_name);
+      sendEmail(email);
     } else {
       res.status(400);
       throw new Error("Invalid user data");
