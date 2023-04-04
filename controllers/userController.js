@@ -40,7 +40,7 @@ const registerUser = async (req, res) => {
     const userExists = await User.findOne({ email });
 
     if (userExists) {
-      return res.status(400).json({ message: "User Email already exists" });
+      return res.status(400).json({ error: "User Email already exists" });
     }
 
     // hash password
