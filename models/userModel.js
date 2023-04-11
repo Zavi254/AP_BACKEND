@@ -20,12 +20,9 @@ const userSchema = mongoose.Schema(
       required: [true, "Please Enter Your Password"],
       unique: true,
     },
-    token: {
-      type: String,
-    },
-    verified_at: {
-      type: Date,
-      timestamps: true,
+    isVerified: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }
