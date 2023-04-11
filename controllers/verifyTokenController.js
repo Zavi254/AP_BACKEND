@@ -15,7 +15,7 @@ const verifyToken = async (req, res) => {
 
     await User.updateOne({ _id: user.id, isVerified: true });
 
-    await Token.findByIdAndRemove(token.id);
+    await Token.findByIdAndRemove(token._id);
 
     res.send("Email verified successfully");
   } catch (error) {
