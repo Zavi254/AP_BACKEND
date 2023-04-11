@@ -1,36 +1,9 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/userModel");
-const nodemailer = require("nodemailer");
+const Token = require("../models/token");
 const jwt = require("jsonwebtoken");
-const fs = require("fs");
-
-// Reading contents of the HTML file
-const html = fs.readFileSync("pages/verifyEmail.html", "utf-8");
-
-function sendEmail(email) {
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL,
-      pass: process.env.PASSWORD,
-    },
-  });
-
-  const mail_configs = {
-    from: process.env.EMAIL,
-    to: email,
-    subject: `Verify your Email`,
-    html: html,
-  };
-
-  transporter.sendMail(mail_configs, (error, info) => {
-    if (error) {
-      console.log(error);
-    } else {
-      console.log(`Email sent succesfully`.cyan.underline);
-    }
-  });
-}
+const { sendEmail } = require("../utils/sendEmail");
+const crypto = require("crypto");
 
 const registerUser = async (req, res) => {
   try {
@@ -55,20 +28,15 @@ const registerUser = async (req, res) => {
       password: hashedPassword,
     });
 
-    // Create a token
-    // const token = jwt.sign(
-    //   {
-    //     user_id: user._id,
-    //     email,
-    //   },
-    //   process.env.TOKEN_KEY,
-    //   { expiresIn: "2h" }
-    // );
+    let token = await new Token({
+      userId: user._id,
+      token: crypto.randomBytes(32).toString("hex"),
+    }).save();
 
-    // user.token = token;
+    const message = `https://ap-backend-0p5c.onrender.com/user/verify/${user.id}/${token.token}`;
 
     if (user) {
-      sendEmail(email);
+      await sendEmail(user.email, "Verify Email", message);
     } else {
       res.status(400);
       throw new Error("Invalid user data");
